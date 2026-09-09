@@ -202,7 +202,7 @@ try {
 
 return ( 
 
-  <div className="flex h-screen overflow-hidden bg-[#0b0f19] text-white"> 
+  <div className="flex h-[100dvh] overflow-hidden bg-[#0b0f19] text-white"> 
   <Sidebar
       chats={chats}
       activeChatId={activeChat?._id}
@@ -216,20 +216,22 @@ return (
 
     <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
       {/* Mobile Menu Button */}
-  <div className="flex items-center border-b border-white/10 px-4 py-3 lg:hidden">
-    <button
-      onClick={() => setSidebarOpen(true)}
-      className="rounded-lg p-2 text-gray-300 hover:bg-white/10 hover:text-white"
-      aria-label="Open sidebar"
-    >
-      <Menu size={22} />
-    </button>
+      <div className="flex items-center border-b border-white/10 px-4 py-3 lg:hidden">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="rounded-lg p-2 text-gray-300 hover:bg-white/10 hover:text-white"
+          aria-label="Open sidebar"
+        >
+          <Menu size={22} />
+        </button>
 
-    <span className="ml-3 font-semibold">
-      Algo-Mentor
-    </span>
-  </div>
-      <Header />
+        <span className="ml-3 font-semibold">
+          Algo-Mentor
+        </span>
+      </div>
+      <Header
+       onMenuClick={() => setSidebarOpen(true)}
+       />
 
       {/*Chat Area/*/}
       <div 
@@ -240,7 +242,7 @@ return (
         activeChat.messages.length === 0 ? (
           <Welcome onTopicSelect={handleSendMessage} />
         ) : (
-          <div className="mx-auto max-w-4xl px-6 py-8">
+          <div className="mx-auto w-full max-w-4xl px-3 py-4 sm:px-5 sm:py-6 md:px-6 md:py-8">
             {activeChat.messages.map((message, index) => (
               <ChatMessage
                 key={message._id || index}
