@@ -7,10 +7,13 @@ import ChatInput from "../components/chat/ChatInput";
 import ChatMessage from "../components/chat/ChatMessage";
 import Footer from "../components/layout/Footer";
 
+import { Menu } from "lucide-react"; //for mobile view
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Home() {
 const [chats, setChats] = useState([]);
+const [sidebarOpen, setSidebarOpen] = useState(false);
 const [activeChat, setActiveChat] = useState(null);
 const [loading, setLoading] = useState(false);
  
@@ -198,6 +201,7 @@ try {
 };
 
 return ( 
+
   <div className="flex h-screen overflow-hidden bg-[#0b0f19] text-white"> 
   <Sidebar
       chats={chats}
@@ -205,10 +209,26 @@ return (
       onSelectChat={loadChat}
       onNewChat={handleNewChat}
       onDeleteChat={handleDeleteChat}
+      isOpen={sidebarOpen}
+      onClose={()=>setSidebarOpen(false)}
     />
 
 
     <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      {/* Mobile Menu Button */}
+  <div className="flex items-center border-b border-white/10 px-4 py-3 lg:hidden">
+    <button
+      onClick={() => setSidebarOpen(true)}
+      className="rounded-lg p-2 text-gray-300 hover:bg-white/10 hover:text-white"
+      aria-label="Open sidebar"
+    >
+      <Menu size={22} />
+    </button>
+
+    <span className="ml-3 font-semibold">
+      Algo-Mentor
+    </span>
+  </div>
       <Header />
 
       {/*Chat Area/*/}
