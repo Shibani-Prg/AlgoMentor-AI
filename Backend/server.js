@@ -10,12 +10,16 @@ const PORT=process.env.PORT || 5000;
 
 const app=express();
 
-app.use(cors({
-    origin: process.env.FRONTEND_URL,
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://algo-mentor-ai.vercel.app",
+    ],
     credentials: true,
-}
+  })
+);
 
-));
 app.use(express.json());
 
 
