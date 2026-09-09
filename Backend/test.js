@@ -1,23 +1,16 @@
 import "dotenv/config";
-import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.API_KEY,
-});
+console.log("API Key exists:", !!process.env.GEMINI_API_KEY);
 
-async function testGemini() {
-  try {
-    const interaction = await ai.interactions.create({
-      model: "gemini-3.8-flash",
-      input: "Say hello",
-    });
+try {
+  const response = await fetch(
+    "https://generativelanguage.googleapis.com"
+  );
 
-    console.log(interaction.output_text);
-
-  } catch (error) {
-    console.error("FULL ERROR:");
-    console.error(error);
-  }
+  console.log("Status:", response.status);
+  console.log("Gemini server reachable!");
+} catch (error) {
+  console.error("Network test failed:");
+  console.error(error);
+  console.error("Cause:", error.cause);
 }
-
-testGemini();

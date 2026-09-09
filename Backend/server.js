@@ -1,20 +1,24 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 
 import connectDB from "./src/db/db.js";
 import Chat from "./src/models/chat.model.js";
 import {askDSAInstructor} from "./DSA.js";
 
-
-dotenv.config();
+const PORT=process.env.PORT || 5000;
 
 const app=express();
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+}
+
+));
 app.use(express.json());
 
-const PORT=5000;
+
 await connectDB();
 
 
@@ -23,8 +27,8 @@ app.get("/",(req , res)=>{
 });
 
 
-//Create New Chat
-app.post("/api/chat", async (req, res)=>{
+//Create new chat
+app.post("/api/chats", async (req, res)=>{
     try{
        const newChat= await Chat.create({
         title:"New Chat",
@@ -92,6 +96,99 @@ app.get("/api/chats/:chatId",async (req, res)=>{
 });
 
 //Send Message
+app.post("/api/chats/:chatId/messages", async(req,res)=>{
+    try{
+        const {message}= req.body;
+
+        const chat= await Chat.findById(req.params.chatId);
+
+        if(!chat){
+            return res.status(404).json({
+                success:false,
+                message:"Chat not found."
+            });
+        }
+
+        if(!message.trim()){
+            return res.status(400).json({
+                success:false,
+                message:"Message is required",
+            });
+        }
+
+        //Add user message
+        chat.messages.push({
+            role:"user",
+            content:message,
+        });
+
+        const conversationHistory = chat.messages.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+        })
+    );
+
+
+        //Update title on first message
+        if(chat.messages.filter(
+            (msg)=>msg.role === "user"
+        ).length === 1)
+        {
+            chat.title=message.trim().length>35 ? `${message.trim().slice(0,35)}...`:message.trim();
+        }
+
+        //Get AI response
+        const aiResponse= await askDSAInstructor(conversationHistory);
+
+        //Add AI message
+        chat.messages.push({
+            role:"assistant",
+            content:aiResponse,
+        });
+
+        await chat.save();
+
+        res.status(200).json({
+            success:true,
+            chat,
+        });
+    }catch(error){
+        console.error("Chat error", error);
+
+        res.status(500).json({
+            success:false,
+            message:error.message,
+        });
+
+    }
+});
+
+
+//Delete Chat
+app.delete("/api/chats/:chatId", async (req,res)=>{
+    try{
+        const chat=await Chat.findByIdAndDelete(req.params.chatId);
+
+        if(!chat){
+            return res.status(404).json({
+                success:false,
+                message:"Chat not found",
+            });
+        }
+
+        res.status(200).json({
+            success:true,
+            message:"Chat deleted successfully",
+        });
+    }catch(error){
+        console.error("Delete Chat Error:", error);
+
+        res.status(500).json({
+            success:false,
+            message:error.message,
+        })
+    }
+})
 
 app.listen(PORT, ()=>{
     console.log(`Server is running on port ${PORT}`);

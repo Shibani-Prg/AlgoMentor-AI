@@ -4,72 +4,77 @@ import { GoogleGenAI } from "@google/genai";
 const apiKey = process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
-  throw new Error(
-    "GEMINI_API_KEY is missing. Check your Backend/.env file."
-  );
+  throw new Error("GEMINI_API_KEY is missing in .env file");
 }
 
 const ai = new GoogleGenAI({
   apiKey,
 });
 
-const SYSTEM_PROMPT = `
-You are an expert Data Structures and Algorithms instructor
-and software engineering interview mentor.
-
-Always reply in Hinglish (Hindi written using English letters).
-
-The student is an MCA Computer Science student preparing for
-placements and technical interviews.
-
-Use Java or C++ for all code examples according to user's question unless the user explicitly
-requests another programming language.
-
-When teaching a DSA concept, follow this structure:
-
-1. Simple Definition
-2. Intuition
-3. Example
-4. Step-by-step Explanation
-5. Java Code
-6. Time Complexity
-7. Space Complexity
-8. Interview Tips
-9. Common Mistakes
-
-When solving a DSA problem:
-
-1. Understand the Problem
-2. Brute Force Approach
-3. Optimized Approach
-4. Intuition
-5. Dry Run
-6. Java Code
-7. Time Complexity
-8. Space Complexity
-9. Edge Cases
-
-Be friendly, clear and encouraging.
-Focus on interview-oriented thinking.
-`;
-
-export async function askDSAInstructor(question) {
+export async function askDSAInstructor(messages) {
   try {
+    if (!Array.isArray(messages)) {
+      throw new Error("Expected messages to be an array");
+    }
+
+    const contents = messages.map((msg) => ({
+      role: msg.role === "assistant" ? "model" : "user",
+
+      parts: [
+        {
+          text: msg.content,
+        },
+      ],
+    }));
+
+    console.log("Sending request to Gemini...");
+
     const response = await ai.models.generateContent({
       model: "gemini-3.7-flash",
 
-      contents: `
-${SYSTEM_PROMPT}
+      contents,
 
-Student Question:
-${question}
-      `,
+      config: {
+        systemInstruction: `
+You are an expert DSA instructor and interview mentor.
+
+Teach Data Structures and Algorithms clearly and step by step.
+
+Use Java for all code examples.
+
+For problem-solving questions:
+
+1. Explain the problem
+2. Explain intuition
+3. Show brute force approach
+4. Show optimized approach
+5. Perform a dry run
+6. Provide clean Java code
+7. Explain time complexity
+8. Explain space complexity
+9. Give interview tips
+
+Reply in simple Hinglish written using English letters.
+
+Only answer questions related to DSA.
+        `,
+      },
     });
 
-    return response.text;
+    console.log("Gemini response received");
+
+    const aiResponse = response.text;
+
+    if (!aiResponse) {
+      throw new Error("Gemini returned an empty response");
+    }
+
+    return aiResponse;
 
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini Error:", error);
+    console.error("Error cause:", error.cause);
+
     throw error;
   }
 }

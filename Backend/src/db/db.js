@@ -1,4 +1,6 @@
-import Chat from "../models/chat.model";
+import dns from "dns";
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 import mongoose from "mongoose";
 
@@ -14,4 +16,4 @@ const connectDB= async ()=>{
     }
 };
 
-export default Chat;
+export default connectDB;
