@@ -115,11 +115,11 @@ export async function askDSAInstructor(messages) {
       );
 
       console.log(
-        "Trying fallback Gemini 2.5 Flash..."
+        "Trying fallback Gemini 3.6 Flash..."
       );
 
       return await generateResponse(
-        "gemini-2.5-flash",
+        "gemini-3.6-flash",
         contents
       );
     }
