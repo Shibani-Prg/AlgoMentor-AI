@@ -42,9 +42,9 @@ function Welcome({onTopicSelect}) {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {topic.map(({ title,description }) => (
+        {topic.map(({ title,description }, idx) => (
           <button
-            key={topic.title}
+            key={idx}
             onClick={() =>
                onTopicSelect(
                    `Teach me ${topic.title} from beginner level with examples and Java code`
